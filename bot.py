@@ -11,7 +11,6 @@ async def main() -> None:
     dp = Dispatcher()
 
     dp.include_routers(
-        handlers.start.router,
         handlers.salary_aggregation.router,
     )
 
