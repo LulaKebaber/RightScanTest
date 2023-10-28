@@ -18,8 +18,12 @@ router = Router()
 
 @router.message()
 async def aggregate_data(message: Message):
-    dates = DatePreparator(message.text).prepare_dates()
-    group_type = DatePreparator(message.text).prepare_group_type()
+    # dates = DatePreparator(message.text).prepare_dates()
+    # group_type = DatePreparator(message.text).prepare_group_type()
 
+    data = DatePreparator(message.text).json_reader()
+    dates = data[0:2]
+    group_type = data[2]
+    
     data = Aggregator(dates, group_type).aggregate_data()
     await message.answer(str(data))

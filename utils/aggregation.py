@@ -3,9 +3,9 @@ from datetime import datetime
 from datetime import timedelta
 
 # Подключение к кластеру MongoDB
-client = pymongo.MongoClient("MONGO_URL")
-db = client['DB_NAME']
-collection = db['COLLECTION_NAME']
+client = pymongo.MongoClient('mongodb+srv://Kebaber:admin@rightscancluster.yrubl8b.mongodb.net/?retryWrites=true&w=majority')
+db = client['RightScanDataBase']
+collection = db['RightScanCollection']
 
 
 def group_data_by_day(dataset, labels, dt_from, dt_upto):

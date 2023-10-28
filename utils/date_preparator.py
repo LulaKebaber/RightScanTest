@@ -1,9 +1,23 @@
 import re
 from datetime import datetime
+import json
+
 
 class DatePreparator:
     def __init__(self, message):
         self.message = message
+
+
+    def json_reader(self):
+        # Разбор JSON
+        data = json.loads(self.message)
+
+        # Теперь вы можете получить переменные
+        dt_from = data["dt_from"]
+        dt_upto = data["dt_upto"]
+        group_type = data["group_type"]
+
+        return dt_from, dt_upto, group_type
     
     def prepare_dates(self):
         dates = re.findall(r'\{(\d{2}.\d{2}.\d{4})\}', self.message)
