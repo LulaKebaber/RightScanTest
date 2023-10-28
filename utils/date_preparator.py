@@ -1,6 +1,6 @@
 import re
-from datetime import datetime
 import json
+from datetime import datetime
 
 
 class DatePreparator:
@@ -12,13 +12,13 @@ class DatePreparator:
         # Разбор JSON
         data = json.loads(self.message)
 
-        # Теперь вы можете получить переменные
         dt_from = data["dt_from"]
         dt_upto = data["dt_upto"]
         group_type = data["group_type"]
 
         return dt_from, dt_upto, group_type
     
+
     def prepare_dates(self):
         dates = re.findall(r'\{(\d{2}.\d{2}.\d{4})\}', self.message)
 
@@ -31,9 +31,8 @@ class DatePreparator:
 
         return dt_from, dt_upto
     
-    def prepare_group_type(self):
 
-    
+    def prepare_group_type(self):
         group_type = re.search(r'единица группировки - \{(.+?)\}', self.message).group(1)
         group_type_dict = {
             "день": "day",

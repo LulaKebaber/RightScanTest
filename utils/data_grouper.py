@@ -43,19 +43,20 @@ class DataGrouper:
         grouped_labels = list(grouped_data.keys())
         grouped_dataset = list(grouped_data.values())
 
+        # Преобзразуем данные в формат ISO формат
         formatted_data = {
             "dataset": grouped_dataset,
             "labels": [f"{year}-{month}-{day}T{hour}:00:00" for year, month, day, hour in grouped_labels]
         }
 
-        # проверяем, есть ли в данных пропуски
+        # Проверяем, есть ли в данных пропуски
         if len(formatted_data["dataset"]) < 24:
             for i in range(24):
                 if i not in formatted_data["labels"]:
                     formatted_data["labels"].insert(i, f"2021-01-01T{i}:00:00")
                     formatted_data["dataset"].insert(i, 0)
         
-        # проверяем на включение в диапазон второго дня
+        # Проверяем на включение в диапазон второго дня
         if dt_upto.hour == 0:
             formatted_data["labels"].insert(24, f"{year}-{month}-{'0' + str(int(day) + 1)}T00:00:00")
             formatted_data["dataset"].insert(24, 0)

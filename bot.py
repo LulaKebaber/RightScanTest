@@ -11,7 +11,7 @@ async def main() -> None:
     dp = Dispatcher()
 
     dp.include_routers(
-        handlers.salary_aggregation.router,
+        handlers.salary_agregation.router,
     )
 
     await bot.delete_webhook(drop_pending_updates=True)

@@ -1,3 +1,3 @@
 from . import (
-    salary_aggregation,
+    salary_agregation,
 )

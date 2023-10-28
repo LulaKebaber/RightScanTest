@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import Command
 from utils.date_preparator import DatePreparator
-from utils.aggregation import Aggregator
+from utils.agregation import Aggregator
 
 router = Router()
 
