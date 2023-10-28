@@ -1,11 +1,12 @@
 import pymongo
 from datetime import datetime
 from datetime import timedelta
+import json
 
 # Подключение к кластеру MongoDB
-client = pymongo.MongoClient('mongodb+srv://Kebaber:admin@rightscancluster.yrubl8b.mongodb.net/?retryWrites=true&w=majority')
-db = client['RightScanDataBase']
-collection = db['RightScanCollection']
+client = pymongo.MongoClient('MONGO_URL')
+db = client['MONGO_DB']
+collection = db['MONGO_COLLECTION']
 
 
 def group_data_by_day(dataset, labels, dt_from, dt_upto):
@@ -32,20 +33,41 @@ def group_data_by_day(dataset, labels, dt_from, dt_upto):
 
     return {"dataset": new_dataset, "labels": days_list}
 
-def group_data_by_hour(dataset, labels):
+
+def group_data_by_hour(dataset, labels, dt_from, dt_upto):
     grouped_data = {}
     
     for i in range(len(labels)):
         label = labels[i]
+        year = label[0:4]  # Извлекаем год из метки времени
+        month = label[5:7]  # Извлекаем месяц из метки времени
+        day = label[8:10]  # Извлекаем день из метки времени
         hour = label[11:13]  # Извлекаем час из метки времени
-        if hour not in grouped_data:
-            grouped_data[hour] = 0
-        grouped_data[hour] += dataset[i]
+        if (year, month, day, hour) not in grouped_data:
+            grouped_data[(year, month, day, hour)] = 0
+        grouped_data[(year, month, day, hour)] += dataset[i]
     
     grouped_labels = list(grouped_data.keys())
     grouped_dataset = list(grouped_data.values())
+
+    formatted_data = {
+        "dataset": grouped_dataset,
+        "labels": [f"{year}-{month}-{day}T{hour}:00:00" for year, month, day, hour in grouped_labels]
+    }
+
+    # проверяем, есть ли в данных пропуски
+    if len(formatted_data["dataset"]) < 24:
+        for i in range(24):
+            if i not in formatted_data["labels"]:
+                formatted_data["labels"].insert(i, f"2021-01-01T{i}:00:00")
+                formatted_data["dataset"].insert(i, 0)
     
-    return {"dataset": grouped_dataset, "labels": grouped_labels}
+    # проверяем на включение в диапазон второго дня
+    if dt_upto.hour == 0:
+        formatted_data["labels"].insert(24, f"{year}-{month}-{'0' + str(int(day) + 1)}T00:00:00")
+        formatted_data["dataset"].insert(24, 0)
+    
+    return formatted_data
 
 
 class Aggregator:
@@ -65,7 +87,7 @@ class Aggregator:
         
         dt_from = datetime.fromisoformat(self.dt_from)
         dt_upto = datetime.fromisoformat(self.dt_upto)
-        
+
         pipeline = [
             {
                 "$match": {
@@ -90,9 +112,13 @@ class Aggregator:
         dataset = [item["total_value"] for item in result]
         labels = [item["_id"] for item in result]
 
-        if self.group_type == "hour":
-            return group_data_by_hour(dataset, labels)
+        if self.group_type == "hour":            
+            data = group_data_by_hour(dataset, labels, dt_from, dt_upto)
+            return json.dumps(data)
+
         elif self.group_type == "day":
-            return group_data_by_day(dataset, labels, dt_from, dt_upto)
+            data = group_data_by_day(dataset, labels, dt_from, dt_upto)
+            return json.dumps(data)
         elif self.group_type == "month":
-            return {"dataset": dataset, "labels": labels}
+            data = {"dataset": dataset, "labels": labels}
+            return json.dumps(data)
