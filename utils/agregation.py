@@ -1,7 +1,6 @@
 import pymongo
 import json
 from datetime import datetime
-from datetime import timedelta
 
 from .data_grouper import DataGrouper
 from config_reader import config
